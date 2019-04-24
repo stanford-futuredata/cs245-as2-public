@@ -1,0 +1,267 @@
+\documentclass[12pt]{article}
+\usepackage{fullpage,amssymb}
+\setlength\parindent{0pt}
+
+% Make each "\section{}" become "Problem N"
+\renewcommand{\thesection}{Problem \arabic{section}}
+
+\begin{document}
+
+\begin{center}
+{\Large CS 245 Spring 2019 Assignment 2 -- Part I}
+\end{center}
+
+By turning in this assignment, I agree to the Stanford honor code and declare
+that all of this is my own work.
+
+\section*{Instructions}
+You will be writing Relational Algebra for SQL queries before and after
+they are optimized by the Catalyst, Spark's SQL optimizer.
+
+\begin{enumerate}
+    \item Start a \texttt{spark-shell} session and load the Cities and Countries
+        tables, as shown in \texttt{a2\_starter.scala}.
+        We suggest you copy-paste the loading code into your spark shell.
+        (You can also have the shell run all the commands in the file
+        for you with \texttt{spark-shell -i a2\_starter.scala}).
+    \begin{itemize}
+        \item Run \texttt{SPARK\_233\_HOME/bin/spark-shell}
+        from the \texttt{part1/} directory
+        (where \\
+        \texttt{SPARK\_233\_HOME} is the directory where you
+        downloaded and unzipped Spark 2.3.3).
+
+    \end{itemize}
+
+    \item Examine \texttt{Cities.csv} and \texttt{Countries.csv}.
+        Observe the output of \texttt{printSchema} on the dataframes
+        representing each table (as in the starter code).
+        \texttt{temp} indicates average temperature in Celsius and
+        \texttt{pop} is the country's population in millions.
+    \item For each of the Problem sections below:
+    \begin{enumerate}
+        \item Think about what the given SQL query does.
+        \item Run the query in \texttt{spark-shell} and save the results to a dataframe.
+        \item Run \texttt{.show()} on the dataframe to inspect the output.
+        \item Run \texttt{.explain(true)} on the dataframe to see Spark's
+            query plans.
+        \item Write Relational Algebra for the Analyzed Logical Plan
+            and for the Optimized Logical Plan, in the space provided
+            for each problem.
+        \item Write a brief explantation (1-3 sentences) describing why the optimized
+            plan differs from the original plan, or, why they are both the same.
+    \end{enumerate}
+\end{enumerate}
+
+Use the Relational Algebra (RA) notation as introduced in Lecture 6 on Query Execution.
+The output of Spark's query plans does not necessarily map perfectly to our RA syntax.
+One of the tasks of this assignment is to think
+critically about the plans that Spark produces and how they should map
+to RA.
+
+Below are a couple examples of simplifying assumptions you can make.
+You are welcome to make other reasonable assumptions (if you're not sure,
+feel free to ask during OH or post on piazza).
+\begin{itemize}
+    \item The pound + number suffix of fields
+        (e.g. the \verb|#12| in \verb|city#12|)
+        in the query plans are
+        used by Spark to uniquely determine references to fields.
+        This is because a single SQL query can, for instance, have multiple
+        fields named \verb|city| (from aliasing or in subqueries).
+        You should ignore the field number and just use the name in your
+        RA expressions.
+        E.g. treat \verb|city#12| as just \verb|city|.
+    \item \verb|cast(4 as double)| can be just \verb|4.0|
+    \item You can omit \texttt{isnotnull} from your select ($\sigma$) predicates.
+\end{itemize}
+
+\textbf{NOTE}:
+We have provided two example queries and their valid corresponding solutions below.
+Please examine them carefully, as they provide hints and guidance for solving the rest of the problems.
+
+\section*{Example 1}
+\begin{verbatim}
+SELECT city
+FROM Cities
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+$\pi_{city}(Cities)$
+
+\subsection*{Optimized Logical Plan}
+$\pi_{city}(Cities)$
+
+\subsection*{Explanation}
+The analyzed and optimized plans are the exact same because there is no
+logical optimization for projecting a single column from a table.
+
+\newpage
+
+\section*{Example 2}
+\begin{verbatim}
+SELECT *
+FROM Cities
+WHERE temp < 5 OR true
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+$\sigma_{temp < 5 \vee true}(Cities)$
+
+\subsection*{Optimized Logical Plan}
+$Cities$
+
+\subsection*{Explanation}
+$temp < 5 \vee true = true$, so $\sigma$ selects every row,
+which is the same as the relation \verb|Cities| itself.
+
+That is:
+$\sigma_{temp < 5 \vee true}(Cities) = \sigma_{true}(Cities) = Cities$
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT country, EU
+FROM Countries
+WHERE coastline = "yes"
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT city
+FROM (
+    SELECT city, temp
+    FROM Cities
+)
+WHERE temp < 4
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT *
+FROM Cities, Countries
+WHERE Cities.country = Countries.country
+    AND Cities.temp < 4
+    AND Countries.pop > 6
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT city, pop
+FROM Cities, Countries
+WHERE Cities.country = Countries.country
+    AND Countries.pop > 6
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT *
+FROM Countries
+WHERE country LIKE "%e%d"
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT *
+FROM Countries
+WHERE country LIKE "%ia"
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{}
+\begin{verbatim}
+SELECT t1 + 1 as t2
+FROM (
+    SELECT cast(temp as int) + 1 as t1
+    FROM Cities
+)
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\newpage
+
+\section{(Extra Credit -- purely optional)}
+\begin{verbatim}
+SELECT t1 + 1 as t2
+FROM (
+    SELECT temp + 1 as t1
+    FROM Cities
+)
+\end{verbatim}
+
+\subsection*{Analyzed Logical Plan}
+\vspace{2in}
+
+\subsection*{Optimized Logical Plan}
+\vspace{2in}
+
+\subsection*{Explanation}
+
+\end{document}
