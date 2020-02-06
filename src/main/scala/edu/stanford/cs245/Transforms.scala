@@ -9,7 +9,7 @@ import org.apache.spark.sql.types.{BooleanType, DoubleType}
 
 object Transforms {
 
-  // Check if a ScalaUDF Expression is our dist UDF
+  // Check whether a ScalaUDF Expression is our dist UDF
   def isDistUdf(udf: ScalaUDF): Boolean = {
     udf.udfName.getOrElse("") == "dist"
   }
