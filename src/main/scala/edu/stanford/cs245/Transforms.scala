@@ -9,21 +9,21 @@ import org.apache.spark.sql.types.{BooleanType, DoubleType}
 
 object Transforms {
 
-  // check if a ScalaUDF Expression is our dist UDF
+  // Check if a ScalaUDF Expression is our dist UDF
   def isDistUdf(udf: ScalaUDF): Boolean = {
     udf.udfName.getOrElse("") == "dist"
   }
 
-  // get an Expression representing the dist_sq UDF with the provided
+  // Get an Expression representing the dist_sq UDF with the provided
   // arguments
   def getDistSqUdf(args: Seq[Expression]): ScalaUDF = {
     ScalaUDF(
       (x1: Double, y1: Double, x2: Double, y2: Double) => {
-        val xDiff = x1 - x2;
-        val yDiff = y1 - y2;
+        val xDiff = x1 - x2
+        val yDiff = y1 - y2
         xDiff * xDiff + yDiff * yDiff
       }, DoubleType, args, Seq(DoubleType, DoubleType, DoubleType, DoubleType),
-      udfName = Option.apply("dist_sq"))
+      udfName = Some("dist_sq"))
   }
 
   // Return any additional optimization passes here
