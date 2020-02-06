@@ -32,7 +32,7 @@ object Transforms {
   }
 
   case class EliminateZeroDists(spark: SparkSession) extends Rule[LogicalPlan] {
-    def apply(plan: LogicalPlan): LogicalPlan = plan transformAllExpressions {
+    def apply(plan: LogicalPlan): LogicalPlan = plan.transformAllExpressions {
       case udf: ScalaUDF if isDistUdf(udf) && udf.children(0) == udf.children(2) &&
         udf.children(1) == udf.children(3) => Literal(0.0, DoubleType)
     }
